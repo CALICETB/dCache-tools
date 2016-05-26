@@ -5,7 +5,7 @@
 // workflow
 // 1. Search in LOCALDIR for .last.RUNNUMBER
 // 2. Copy files in DAQDIR with RUNNUMBER larger than the last
-// 3. Copy using lcg-cr command
+// 3. Copy using lcg-cr command / gfal command (May 2016)
 // 4. Check copy done correctly or try reupload
 
 #include <cstring>
@@ -85,20 +85,39 @@ bool CopytodCache(string file)
   //cout << "LFN : " << logical_filename << endl;
   //cout << "Filepath : " << filepath << endl;
 
+  /* Old lcg command
+    string command;
+    if(verbose)
+    command = "lcg-cr -v --vo calice -d ";
+    else
+    command = "lcg-cr --vo calice -d ";
+     
+    command += srm;
+    command += " -P ";
+    command += relative_path;
+    command += " -l lfn:";
+    command += logical_filename;
+    command += " file://";
+    command += filepath;
+  */
+
+  /* New gfal command */
   string command;
   if(verbose)
-    command = "lcg-cr -v --vo calice -d ";
+    command = "gfal-copy -v ";
   else
-    command = "lcg-cr --vo calice -d ";
+    command = "gfal-copy ";
 
-  command += srm;
-  command += " -P ";
-  command += relative_path;
-  command += " -l lfn:";
-  command += logical_filename;
-  command += " file://";
+  command += "file://";
   command += filepath;
+  command += " srm://";
+  command += srm;
+  command += "/pnfs/desy.de/calice/";
+  command += relative_path;
+  command += " lfn:";
+  command += logical_filename;
 
+  
   cout << "Copy : " << command << endl;
 
   int status = system(command.c_str());
@@ -116,13 +135,25 @@ bool CopytodCache(string file)
 bool CheckFileondCache(string file)
 {
 
+  /* Old lfc command 
   string command = "lfc-ls -l ";
   command += root_dCache;
   command += outdir_base;
   command += outdir_tag;
   command += outdir;
   command += file;
+  */
 
+  /* New gfal command */
+  string command = "gfal-ls -l ";
+  command += "srm://";
+  command += srm;
+  command += "/pnfs/desy.de/calice/";
+  command += outdir_base;
+  command += outdir_tag;
+  command += outdir;
+  command += file;
+  
   int status = system(command.c_str());
 
   if(status == 0)

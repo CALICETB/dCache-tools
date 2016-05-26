@@ -59,15 +59,33 @@ bool Copy2dCache(string file)
   //cout << "LFN : " << logical_filename << endl;
   //cout << "Filepath : " << filepath << endl;
 
-  string command = "lcg-cr -v --vo calice -d ";
-  command += srm;
-  command += " -P ";
-  command += relative_path;
-  command += " -l lfn:";
-  command += logical_filename;
-  command += " file://";
-  command += filepath;
+  /* Old lcg command
+     string command = "lcg-cr -v --vo calice -d ";
+     command += srm;
+     command += " -P ";
+     command += relative_path;
+     command += " -l lfn:";
+     command += logical_filename;
+     command += " file://";
+     command += filepath;
+  */
 
+  /* New gfal command */
+  string command;
+  if(verbose)
+    command = "gfal-copy -v ";
+  else
+    command = "gfal-copy ";
+
+  command += "file://";
+  command += filepath;
+  command += " srm://";
+  command += srm;
+  command += "/pnfs/desy.de/calice/";
+  command += relative_path;
+  command += " lfn:";
+  command += logical_filename;
+  
   cout << "Copy : " << command << endl;
 
   int status = system(command.c_str());
@@ -138,7 +156,7 @@ bool GetListofLocalFiles()
 
 bool GetListofdCacheFiles()
 {
-
+  /* Old lfc command 
   string command = "lcg-ls -l ";
   command += "lfn:";
   command += root_dCache;
@@ -146,6 +164,17 @@ bool GetListofdCacheFiles()
   command += outdir_tag;
   command += outdir;
   command += " | awk '{print $6}' > listoffiles_dcache.txt";
+  */
+
+  /* New gfal command */
+  string command = "gfal-ls -l ";
+  command += "srm://";
+  command += srm;
+  command += "/pnfs/desy.de/calice/";
+  command += outdir_base;
+  command += outdir_tag;
+  command += outdir;
+  command += " | awk '{print $9}' > listoffiles_dcache.txt";
   
   int status = system(command.c_str());
   
