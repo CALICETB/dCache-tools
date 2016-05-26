@@ -167,6 +167,7 @@ bool GetListofdCacheFiles()
   */
 
   /* New gfal command */
+  string srm = "dcache-se-desy.desy.de";
   string command = "gfal-ls -l ";
   command += "srm://";
   command += srm;
